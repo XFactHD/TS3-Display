@@ -6,3 +6,7 @@ Gerber
 
 .idea
 out
+
+Release
+Debug
+.vs
