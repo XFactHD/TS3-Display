@@ -191,7 +191,7 @@ int ts3plugin_requestAutoload() {
 	return 1;  /* 1 = request autoloaded, 0 = do not request autoload */
 }
 
-				
+			
 
 /*
  * Called when our connection status changed
@@ -374,7 +374,13 @@ void ts3plugin_onClientDisplayNameChanged(uint64 serverConnectionHandlerID, anyI
 	if (connStatus == STATUS_DISCONNECTED || serverConnectionHandlerID != schID || !pluginRunning) { return; }
 
 	if (users.find(clientID) != users.end()) { //User is in our channel => change name
-		enqueueCommand(CMD_CLIENT_RENAME, clientID, 0, 0, displayName);
+		char userName[MAX_STR_LEN + 1];
+		strcpy_s(userName, MAX_STR_LEN, displayName);
+		userName[MAX_STR_LEN] = '\0';
+
+		sanitizeName(userName);
+
+		enqueueCommand(CMD_CLIENT_RENAME, clientID, 0, 0, userName);
 	}
 }
 
@@ -616,17 +622,114 @@ byte packUserState(userState state) {
 	return result;
 }
 
+map<wchar_t, char*> specialChars = {
+	{ 0xC2A2, "c" },
+	{ 0xC2A6, "|" },
+	{ 0xC2A9, "C" },
+	{ 0xC2AA, "a" },
+	{ 0xC2AB, "<<" },
+	{ 0xC2AE, "R" },
+	{ 0xC2B0, "0" },
+	{ 0xC2B2, "2" },
+	{ 0xC2B3, "3" },
+	{ 0xC2B4, "'" },
+	{ 0xC2B8, "," },
+	{ 0xC2B9, "1" },
+	{ 0xC2BA, "0" },
+	{ 0xC2BB, ">>" },
+	{ 0xC2BC, "1/4" },
+	{ 0xC2BD, "1/2" },
+	{ 0xC2BE, "3/4" },
+	{ 0xC2BF, "?" },
+	{ 0xC380, "A" },
+	{ 0xC381, "A" },
+	{ 0xC382, "A" },
+	{ 0xC383, "A" },
+	{ 0xC384, "AE" },
+	{ 0xC385, "A" },
+	{ 0xC386, "AE" },
+	{ 0xC387, "C" },
+	{ 0xC388, "E" },
+	{ 0xC389, "E" },
+	{ 0xC38A, "E" },
+	{ 0xC38B, "E" },
+	{ 0xC38C, "I" },
+	{ 0xC38D, "I" },
+	{ 0xC38E, "I" },
+	{ 0xC38F, "I" },
+	{ 0xC390, "D" },
+	{ 0xC391, "N" },
+	{ 0xC392, "O" },
+	{ 0xC393, "O" },
+	{ 0xC394, "O" },
+	{ 0xC395, "O" },
+	{ 0xC396, "OE" },
+	{ 0xC397, "x" },
+	{ 0xC398, "O" },
+	{ 0xC399, "U" },
+	{ 0xC39A, "U" },
+	{ 0xC39B, "U" },
+	{ 0xC39C, "UE" },
+	{ 0xC39D, "Y" },
+	{ 0xC39F, "ss" },
+	{ 0xC3A0, "a" },
+	{ 0xC3A1, "a" },
+	{ 0xC3A2, "a" },
+	{ 0xC3A3, "a" },
+	{ 0xC3A4, "ae" },
+	{ 0xC3A5, "a" },
+	{ 0xC3A6, "ae" },
+	{ 0xC3A7, "c" },
+	{ 0xC3A8, "e" },
+	{ 0xC3A9, "e" },
+	{ 0xC3AA, "e" },
+	{ 0xC3AB, "e" },
+	{ 0xC3AC, "i" },
+	{ 0xC3AD, "i" },
+	{ 0xC3AE, "i" },
+	{ 0xC3AF, "i" },
+	{ 0xC3B1, "n" },
+	{ 0xC3B2, "o" },
+	{ 0xC3B3, "o" },
+	{ 0xC3B4, "o" },
+	{ 0xC3B5, "o" },
+	{ 0xC3B6, "oe" },
+	{ 0xC3B7, "/" },
+	{ 0xC3B8, "o" },
+	{ 0xC3B9, "u" },
+	{ 0xC3BA, "u" },
+	{ 0xC3BB, "u" },
+	{ 0xC3BC, "ue" },
+	{ 0xC3BD, "y" },
+	{ 0xC3BF, "y" },
+};
+
 void sanitizeName(char* name) {
-	int lastGoodSymbol = -1;
-	for (unsigned int i = 0; name[i] != '\0'; i++) {
-		while (!((name[i] >= 32 && name[i] <= 126) || name[i] == '\0')) {
-			unsigned int j;
-			for (j = i; name[j] != '\0'; j++) {
-				name[j] = name[j + 1];
+	string strName(name);
+	strName = strName.substr(strName.find_first_not_of(' '));
+
+	for (size_t i = 0; i < strName.length(); ) {
+		char c = strName.at(i);
+		if (((uint8_t)c) > 0x7F) {
+			wchar_t wc = (((wchar_t)c) << 8) | (strName.at(i + 1) & 0xFF);
+			
+			strName = strName.erase(i, 2);
+
+			auto entry = specialChars.find(wc);
+			if (entry != specialChars.end()) {
+				char* replacement = entry->second;
+				strName = strName.insert(i, replacement);
+				i += strlen(replacement);
 			}
-			name[j] = '\0';
+		}
+		else {
+			i++;
 		}
 	}
+
+	//TODO: replace any amount of spaces with one
+
+	strcpy_s(name, MAX_STR_LEN + 1, strName.c_str());
 }
 
 

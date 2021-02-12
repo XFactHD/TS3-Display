@@ -10,3 +10,4 @@ out
 Release
 Debug
 .vs
+*.vcxproj.user
