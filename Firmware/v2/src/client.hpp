@@ -30,6 +30,7 @@ public:
     action_t lastAction;
 };
 
+void disconnect(client_t** clients);
 void onClientJoined(client_t** clients, cmd_t* cmdIn);
 void onClientLeft(client_t** clients, uint16_t userId);
 void onClientTalkState(client_t** clients, uint16_t userId, uint8_t state);

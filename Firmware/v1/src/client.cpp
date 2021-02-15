@@ -3,6 +3,14 @@
 extern uint16_t ownClientId;
 client_t* waiting = nullptr;
 
+void disconnect(client_t** clients) {
+    ownClientId = 0;
+    for(int i = 0; i < 14; i++) { clients[i]->id = 0; } // Reset client list
+    printServerName((char*)"No server");
+    printChannelName((char*)"No channel");
+    clearClientList();
+}
+
 void onClientJoined(client_t** clients, cmd_t* cmdIn) {
     if(findClient(clients, cmdIn->userID) != -1) { return; } //Client is already on the display
 

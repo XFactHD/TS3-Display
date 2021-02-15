@@ -119,11 +119,7 @@ void loop() {
             }
 
             case CMD_DISCONNECT: {
-                ownClientId = 0;
-                for(auto & client : clients) { client->id = 0; } // Reset client list
-                printServerName((char*)"No server");
-                printChannelName((char*)"No channel");
-                clearClientList();
+                disconnect(clients);
                 break;
             }
 
@@ -196,6 +192,9 @@ void loop() {
     }
 
     if (millis() - lastPacket > PACKET_TIMEOUT) {
+        //Assume crash as the timeout reason => clear screen
+        disconnect(clients);
+
         shutdown(false);
         Serial.write(CMD_ACK);
     }
