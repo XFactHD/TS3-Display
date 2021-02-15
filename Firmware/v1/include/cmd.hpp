@@ -20,9 +20,7 @@
 #define CMD_CLIENT_RENAME     0x45  // Someone changed their name
 #define CMD_DISP_ON           0x50  // Switch display backlight on
 #define CMD_DISP_OFF          0x51  // Switch display backlight off
-#define CMD_CHECK_INTEGRITY   0x52	// Check integrity of the data on the display
-#define CMD_REBUILD_LIST	  0x53	// Clear the client list on the display for rebuilding
-#define CMD_REBUILD_DONE	  0x54	// Rebuild done, trigger redraw
+#define CMD_KEEPALIVE         0x52  // Used to keep the connection alive, otherwise display thinks the connection died
 #define CMD_ACK               0x60  // Command acknowledge
 
 typedef struct {

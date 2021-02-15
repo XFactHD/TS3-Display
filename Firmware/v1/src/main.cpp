@@ -11,8 +11,11 @@
 #include <sort.hpp>
 #include <cmd.hpp>
 
+#define PACKET_TIMEOUT 2000
+
 client_t* clients[14];
 uint16_t ownClientId = 0;
+unsigned long lastPacket = 0;
 
 EMPTY_INTERRUPT(PCINT2_vect);
 
@@ -40,6 +43,13 @@ void sleepUntilSerialInterrupt() {
   //Enable UART
   UCSR0B |= bit (RXEN0);  // enable receiver
   UCSR0B |= bit (TXEN0);  // enable transmitter
+}
+
+void shutdown(bool ackBeforeSleep) {
+    displayOff();
+    if (ackBeforeSleep) { Serial.write(CMD_ACK); }
+    delay(10);
+    sleepUntilSerialInterrupt();
 }
 
 void performTest() {
@@ -89,11 +99,12 @@ void setup() {
   initDisplay();
 
   printServerName("No server");
-  printChannelName("--");
+  printChannelName("No channel");
 
   displayOff();
   sleepUntilSerialInterrupt();
   Serial.write(CMD_ACK);
+  lastPacket = millis();
 }
 
 void loop() {
@@ -174,14 +185,18 @@ void loop() {
             }
 
             case CMD_DISP_OFF: {
-                displayOff();
-                Serial.write(CMD_ACK);
-                delay(10);
-                sleepUntilSerialInterrupt();
+                shutdown(true);
                 break;
             }
         }
 
+        Serial.write(CMD_ACK);
+
+        lastPacket = millis();
+    }
+
+    if (millis() - lastPacket > PACKET_TIMEOUT) {
+        shutdown(false);
         Serial.write(CMD_ACK);
     }
 

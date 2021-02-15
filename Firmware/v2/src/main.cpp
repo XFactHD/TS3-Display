@@ -5,9 +5,11 @@
 #include "display.hpp"
 
 //#define DEBUG
+#define PACKET_TIMEOUT 2000
 
 client_t* clients[14];
 uint16_t ownClientId = 0;
+unsigned long lastPacket = 0;
 
 //EMPTY_INTERRUPT(PCINT2_vect);
 
@@ -39,6 +41,13 @@ void sleepUntilSerialInterrupt() {
     //TODO: reimplement properly
     while (!Serial.available()) { delay(10); } //Wait for serial message
     Serial.read(); //Clear receive buffer
+}
+
+void shutdown(bool ack) {
+    displayOff();
+    if (ack) { Serial.write(CMD_ACK); }
+    delay(10);
+    sleepUntilSerialInterrupt();
 }
 
 void performTest() {
@@ -190,6 +199,7 @@ void setup() {
     displayOff();
     sleepUntilSerialInterrupt();
     Serial.write(CMD_ACK);
+    lastPacket = millis();
 
     //printIcons();
 }
@@ -272,14 +282,17 @@ void loop() {
             }
 
             case CMD_DISP_OFF: {
-                displayOff();
-                Serial.write(CMD_ACK);
-                delay(10);
-                sleepUntilSerialInterrupt();
+                shutdown(true);
                 break;
             }
         }
 
+        Serial.write(CMD_ACK);
+        lastPacket = millis();
+    }
+
+    if (millis() - lastPacket > PACKET_TIMEOUT) {
+        shutdown(false);
         Serial.write(CMD_ACK);
     }
 

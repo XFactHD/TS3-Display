@@ -9,6 +9,7 @@
 
 #define MAX_STR_LEN 35 // TODO: check how many characters can be displayed
 #define REMOTE_USER_LIMIT 14 // Max amount of users the display can show at once
+#define PACKET_TIMEOUT 1000 // Maximum time in ms between two packets
 
 #define CMD_CONNECT				0x10	// We connected to a server (own userId)
 #define CMD_DISCONNECT			0x11	// We left the server (no args)
@@ -24,6 +25,7 @@
 #define CMD_CLIENT_RENAME		0x45	// Someone changed their name
 #define CMD_DISP_ON				0x50	// Switch display backlight on
 #define CMD_DISP_OFF			0x51	// Switch display backlight off
+#define CMD_KEEPALIVE			0x52	// Used to keep the connection alive, otherwise display thinks the connection died
 #define CMD_ACK					0x60	// Command acknowledge
 
 #pragma pack(push, 1) //Causes the struct to not be padded for memory allignment
@@ -59,7 +61,7 @@ void writeConfigFile();
 
 void setNewConfigValues(std::string port, unsigned long baud);
 
-void sanitizeName(char* name);
+void sanitizeName(char* source, char* target);
 
 void enqueueCommand(unsigned char cmd, anyID userId, int groupId, unsigned char state, const char* data);
 

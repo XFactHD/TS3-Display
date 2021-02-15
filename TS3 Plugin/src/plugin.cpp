@@ -20,6 +20,7 @@
 #include <queue>
 #include <map>
 #include <vector>
+#include <ctime>
 
 static struct TS3Functions ts3Functions;
 
@@ -103,11 +104,11 @@ int ts3plugin_init() {
 
 	threadMutex = CreateMutex(NULL, FALSE, NULL);
 	if (threadMutex == NULL) { return 1; }
-	ts3Functions.logMessage("Mutex created", LogLevel_INFO, LOG_MSG_CHANNEL, 0);
+	ts3Functions.logMessage("Mutex created", LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
 
 	threadHandle = CreateThread(NULL, 0, outputThread, NULL, 0, NULL);
 	if (threadHandle == NULL) { return 1; }
-	ts3Functions.logMessage("Thread created", LogLevel_INFO, LOG_MSG_CHANNEL, 0);
+	ts3Functions.logMessage("Thread created", LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
 	while (!pluginRunning) {
 		if (threadInitError) {
 			CloseHandle(threadHandle);
@@ -115,7 +116,7 @@ int ts3plugin_init() {
 			return 1;
 		}
 	}
-	ts3Functions.logMessage("Thread started", LogLevel_INFO, LOG_MSG_CHANNEL, 0);
+	ts3Functions.logMessage("Thread started", LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
 
 	return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 }
@@ -124,15 +125,15 @@ int ts3plugin_init() {
 void ts3plugin_shutdown() {
 	if (pluginRunning) { //When pluginRunning is 0, the thread never fully started, which means there is no thread to stop
 	/* Your plugin cleanup code here */
-		ts3Functions.logMessage("Stopping thread", LogLevel_INFO, LOG_MSG_CHANNEL, 0);
+		ts3Functions.logMessage("Stopping thread", LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
 		pluginRunning = 0;
 		while (!threadExited) { Sleep(1); }
 
-		ts3Functions.logMessage("Thread stopped", LogLevel_INFO, LOG_MSG_CHANNEL, 0);
+		ts3Functions.logMessage("Thread stopped", LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
 	}
 	if (threadHandle != NULL) { CloseHandle(threadHandle); }
 	if (threadMutex != NULL) { CloseHandle(threadMutex); }
-	ts3Functions.logMessage("Thread cleaned up", LogLevel_INFO, LOG_MSG_CHANNEL, 0);
+	ts3Functions.logMessage("Thread cleaned up", LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
 
 	/* Free pluginID if we registered it */
 	if(pluginID) {
@@ -214,9 +215,11 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
 			enqueueCommand(CMD_CONNECT, ownClientID, 0, 0, NULL);
 
 			char* serverName;
+			char cleanName[MAX_STR_LEN + 1];
+
 			error = ts3Functions.getServerVariableAsString(serverConnectionHandlerID, VIRTUALSERVER_NAME, &serverName);
-			if (error == ERROR_ok) { sanitizeName(serverName); }
-			enqueueCommand(CMD_SERVER_NAME, 0, 0, 0, error == ERROR_ok ? serverName : "<unknown>");
+			if (error == ERROR_ok) { sanitizeName(serverName, cleanName); }
+			enqueueCommand(CMD_SERVER_NAME, 0, 0, 0, error == ERROR_ok ? cleanName : "<unknown>");
 			if (error == ERROR_ok) { ts3Functions.freeMemory(serverName); }
 		}
 		else if (newStatus == STATUS_CONNECTION_ESTABLISHED) {
@@ -378,7 +381,7 @@ void ts3plugin_onClientDisplayNameChanged(uint64 serverConnectionHandlerID, anyI
 		strcpy_s(userName, MAX_STR_LEN, displayName);
 		userName[MAX_STR_LEN] = '\0';
 
-		sanitizeName(userName);
+		sanitizeName(userName, userName);
 
 		enqueueCommand(CMD_CLIENT_RENAME, clientID, 0, 0, userName);
 	}
@@ -398,9 +401,11 @@ void selfChannelSwitch(uint64 serverConnectionHandlerID, uint64 newChannelID, an
 	if (newChannelID == 0) { return; } // Channel ID 0 is the "fallback" value for disconnecting from the server
 
 	char* chanName;
+	char cleanName[MAX_STR_LEN + 1];
+
 	unsigned int error = ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, newChannelID, CHANNEL_NAME, &chanName);
-	if (error == ERROR_ok) { sanitizeName(chanName); }
-	enqueueCommand(CMD_CHANNEL_SWITCH, 0, 0, 0, error == ERROR_ok ? chanName : "<unknown>");
+	if (error == ERROR_ok) { sanitizeName(chanName, cleanName); }
+	enqueueCommand(CMD_CHANNEL_SWITCH, 0, 0, 0, error == ERROR_ok ? cleanName : "<unknown>");
 	ts3Functions.freeMemory(chanName);
 
 	anyID* newUsers;
@@ -412,7 +417,7 @@ void selfChannelSwitch(uint64 serverConnectionHandlerID, uint64 newChannelID, an
 			
 			char userName[MAX_STR_LEN + 1];
 			unsigned int error = ts3Functions.getClientDisplayName(serverConnectionHandlerID, newUsers[i], userName, MAX_STR_LEN);
-			if (error == ERROR_ok) { sanitizeName(userName); }
+			if (error == ERROR_ok) { sanitizeName(userName, userName); }
 
 			int talkPower = 0;
 			error = ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, newUsers[i], CLIENT_TALK_POWER, &talkPower);
@@ -443,7 +448,7 @@ void userJoinChannel(uint64 serverConnectionHandlerID, anyID clientID) {
 
 	char userName[MAX_STR_LEN + 1];
 	unsigned int error = ts3Functions.getClientDisplayName(serverConnectionHandlerID, clientID, userName, MAX_STR_LEN);
-	if (error == ERROR_ok) { sanitizeName(userName); }
+	if (error == ERROR_ok) { sanitizeName(userName, userName); }
 
 	int talkPower = 0;
 	unsigned int ignore = ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, clientID, CLIENT_TALK_POWER, &talkPower);
@@ -704,8 +709,8 @@ map<wchar_t, char*> specialChars = {
 	{ 0xC3BF, "y" },
 };
 
-void sanitizeName(char* name) {
-	string strName(name);
+void sanitizeName(char* source, char* target) {
+	string strName(source);
 	strName = strName.substr(strName.find_first_not_of(' '));
 
 	for (size_t i = 0; i < strName.length(); ) {
@@ -729,7 +734,12 @@ void sanitizeName(char* name) {
 
 	//TODO: replace any amount of spaces with one
 
-	strcpy_s(name, MAX_STR_LEN + 1, strName.c_str());
+	if (strName.length() > MAX_STR_LEN) {
+		strName.replace(MAX_STR_LEN - 3, 3, 3, '.');
+	}
+
+	strncpy_s(target, MAX_STR_LEN + 1, strName.c_str(), MAX_STR_LEN);
+	target[MAX_STR_LEN] = '\0';
 }
 
 
@@ -779,21 +789,16 @@ DWORD WINAPI outputThread(LPVOID lpParam) {
 		waitForAcknowledge(com);
 	}
 
+	DWORD lastPacket = GetTickCount();
 	while (pluginRunning) {
 		if (!cmdQueue.empty()) {
 			if (waitForMutex(threadMutex, INFINITE, "OutputThread")) { continue; }
 
 			cmd_t toSend = cmdQueue.front();
-			out[0] = toSend.cmdID;
-			memcpy(out + 1, &toSend.userId, 2);
-			memcpy(out + 3, &toSend.groupId, 4);
-			out[7] = toSend.state;
-			memcpy(out + 8, toSend.data, MAX_STR_LEN + 1);
 
 			ReleaseMutex(threadMutex);
 
 			if (com->writeSerialPort((char*)&toSend, sizeof(cmd_t))) {
-			//if (com->writeSerialPort(out, sizeof(out))) {
 				char msg[512];
 				sprintf_s(msg, "[OutputThread] Sent cmd 0x%x to serial port!", toSend.cmdID);
 				ts3Functions.logMessage(msg, LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
@@ -814,12 +819,28 @@ DWORD WINAPI outputThread(LPVOID lpParam) {
 					pluginRunning = 0;
 				}
 			}
+
+			lastPacket = GetTickCount();
 		}
+
+		DWORD now = GetTickCount();
+		if (now - lastPacket > PACKET_TIMEOUT) {
+			out[0] = CMD_KEEPALIVE;
+			if (!com->writeSerialPort(out, sizeof(out))) {
+				ts3Functions.logMessage("[OutputThread] Failed to send keepalive packet!", LogLevel_ERROR, LOG_MSG_CHANNEL, 0);
+
+				if (!waitForAcknowledge(com)) {
+					ts3Functions.logMessage("[OutputThread] Keepalive acknowledge timed out!", LogLevel_ERROR, LOG_MSG_CHANNEL, 0);
+				}
+			}
+
+			lastPacket = now;
+		}
+
 		Sleep(100);
 	}
 
 	out[0] = CMD_DISP_OFF;
-	memset(out + 1, 0, sizeof(out) - 1);
 	if (!com->writeSerialPort(out, sizeof(out))) {
 		ts3Functions.logMessage("[OutputThread] Failed to write stop command to serial port!", LogLevel_ERROR, LOG_MSG_CHANNEL, 0);
 	}
