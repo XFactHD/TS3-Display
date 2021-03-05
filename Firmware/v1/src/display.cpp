@@ -21,7 +21,7 @@ void displayOn() {
     display.writeCommand(0x11);
     display.SPI_CS_HIGH();
     delay(5);
-    analogWrite(TFT_BL, 180);
+    analogWrite(TFT_BL, 120);
 }
 
 void displayOff() {

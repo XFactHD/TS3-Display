@@ -4,8 +4,6 @@
 #include <avr/power.h>
 #include <avr/sleep.h>
 
-//#define DEBUG
-
 #include <client.hpp>
 #include <display.hpp>
 #include <sort.hpp>
@@ -45,11 +43,18 @@ void sleepUntilSerialInterrupt() {
   UCSR0B |= bit (TXEN0);  // enable transmitter
 }
 
-void shutdown(bool ackBeforeSleep) {
-    displayOff();
-    if (ackBeforeSleep) { Serial.write(CMD_ACK); }
-    delay(10);
+void shutdownAndWait(bool ackBeforeSleep, bool ackAfterSleep) {
+    if (ackBeforeSleep) {
+        Serial.write(CMD_ACK);
+        delay(10);
+    }
+
     sleepUntilSerialInterrupt();
+
+    if (ackAfterSleep) {
+        Serial.write(CMD_ACK);
+        lastPacket = millis();
+    }
 }
 
 void performTest() {
@@ -94,17 +99,14 @@ void setup() {
   Serial.begin(1000000);
 
   //Initialize client array
-  for(int i = 0; i < 14; i++) { clients[i] = new client_t(); }
+  for(auto& client : clients) { client = new client_t(); }
 
   initDisplay();
 
-  printServerName("No server");
-  printChannelName("No channel");
+  printServerName((char*)"No server");
+  printChannelName((char*)"No channel");
 
-  displayOff();
-  sleepUntilSerialInterrupt();
-  Serial.write(CMD_ACK);
-  lastPacket = millis();
+  shutdownAndWait(false, true);
 }
 
 void loop() {
@@ -181,27 +183,22 @@ void loop() {
             }
 
             case CMD_DISP_OFF: {
-                shutdown(true);
+                displayOff();
+                shutdownAndWait(true, false);
                 break;
             }
         }
 
         Serial.write(CMD_ACK);
-
         lastPacket = millis();
     }
+
+    checkActions(clients);
 
     if (millis() - lastPacket > PACKET_TIMEOUT) {
         //Assume crash as the timeout reason => clear screen
         disconnect(clients);
-
-        shutdown(false);
-        Serial.write(CMD_ACK);
+        displayOff();
+        shutdownAndWait(false, true);
     }
-
-#ifdef DEBUG
-    performTest();
-#endif
-
-    checkActions(clients);
 }

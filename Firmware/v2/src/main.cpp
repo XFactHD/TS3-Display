@@ -4,7 +4,6 @@
 
 #include "display.hpp"
 
-//#define DEBUG
 #define PACKET_TIMEOUT 2000
 
 client_t* clients[14];
@@ -43,11 +42,18 @@ void sleepUntilSerialInterrupt() {
     Serial.read(); //Clear receive buffer
 }
 
-void shutdown(bool ack) {
-    displayOff();
-    if (ack) { Serial.write(CMD_ACK); }
-    delay(10);
+void shutdownAndWait(bool ackBeforeSleep, bool ackAfterSleep) {
+    if (ackBeforeSleep) {
+        Serial.write(CMD_ACK);
+        delay(10);
+    }
+
     sleepUntilSerialInterrupt();
+
+    if (ackAfterSleep) {
+        Serial.write(CMD_ACK);
+        lastPacket = millis();
+    }
 }
 
 void performTest() {
@@ -196,10 +202,7 @@ void setup() {
     printServerName((char*)"No server");
     printChannelName((char*)"No channel");
 
-    displayOff();
-    sleepUntilSerialInterrupt();
-    Serial.write(CMD_ACK);
-    lastPacket = millis();
+    shutdownAndWait(false, true);
 
     //printIcons();
 }
@@ -278,7 +281,8 @@ void loop() {
             }
 
             case CMD_DISP_OFF: {
-                shutdown(true);
+                displayOff();
+                shutdownAndWait(true, false);
                 break;
             }
         }
@@ -287,17 +291,12 @@ void loop() {
         lastPacket = millis();
     }
 
+    checkActions(clients);
+
     if (millis() - lastPacket > PACKET_TIMEOUT) {
         //Assume crash as the timeout reason => clear screen
         disconnect(clients);
-
-        shutdown(false);
-        Serial.write(CMD_ACK);
+        displayOff();
+        shutdownAndWait(false, true);
     }
-
-#ifdef DEBUG
-    performTest();
-#endif
-
-    checkActions(clients);
 }

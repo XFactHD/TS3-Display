@@ -46,6 +46,4 @@ void checkActions(client_t** clients);
 int findClient(client_t** clients, uint16_t clientId);
 int findLine(client_t** clients, int idx);
 
-void checkActions(client_t** clients);
-
 #endif

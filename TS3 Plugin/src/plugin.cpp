@@ -113,7 +113,11 @@ int ts3plugin_init() {
 		if (threadInitError) {
 			CloseHandle(threadHandle);
 			CloseHandle(threadMutex);
-			return 1;
+
+			threadHandle = NULL;
+			threadMutex = NULL;
+
+			return 0; //Don't crash completely because that prevents the user from fixing the most prominent cause: COM port changed
 		}
 	}
 	ts3Functions.logMessage("Thread started", LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
@@ -151,7 +155,6 @@ int ts3plugin_offersConfigure() {
 	 * PLUGIN_OFFERS_CONFIGURE_NEW_THREAD - Plugin does implement ts3plugin_configure and requests to run this function in an own thread
 	 * PLUGIN_OFFERS_CONFIGURE_QT_THREAD  - Plugin does implement ts3plugin_configure and requests to run this function in the Qt GUI thread
 	 */
-	//return PLUGIN_OFFERS_NO_CONFIGURE;  /* In this case ts3plugin_configure does not need to be implemented */ //TODO: offer qt configure
 	return PLUGIN_OFFERS_CONFIGURE_QT_THREAD;
 }
 
@@ -406,7 +409,7 @@ void selfChannelSwitch(uint64 serverConnectionHandlerID, uint64 newChannelID, an
 	unsigned int error = ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, newChannelID, CHANNEL_NAME, &chanName);
 	if (error == ERROR_ok) { sanitizeName(chanName, cleanName); }
 	enqueueCommand(CMD_CHANNEL_SWITCH, 0, 0, 0, error == ERROR_ok ? cleanName : "<unknown>");
-	ts3Functions.freeMemory(chanName);
+	if (error == ERROR_ok) { ts3Functions.freeMemory(chanName); }
 
 	anyID* newUsers;
 	error = ts3Functions.getChannelClientList(serverConnectionHandlerID, newChannelID, &newUsers);
@@ -416,12 +419,12 @@ void selfChannelSwitch(uint64 serverConnectionHandlerID, uint64 newChannelID, an
 			users.insert(pair<anyID, userState>(newUsers[i], state));
 			
 			char userName[MAX_STR_LEN + 1];
-			unsigned int error = ts3Functions.getClientDisplayName(serverConnectionHandlerID, newUsers[i], userName, MAX_STR_LEN);
+			unsigned int nameError = ts3Functions.getClientDisplayName(serverConnectionHandlerID, newUsers[i], userName, MAX_STR_LEN);
 			if (error == ERROR_ok) { sanitizeName(userName, userName); }
 
 			int talkPower = 0;
-			error = ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, newUsers[i], CLIENT_TALK_POWER, &talkPower);
-			if (error != ERROR_ok) {
+			unsigned int tpError = ERROR_ok;//ts3Functions.getClientVariableAsInt(serverConnectionHandlerID, newUsers[i], CLIENT_TALK_POWER, &talkPower);
+			if (tpError != ERROR_ok) {
 				char msg[512];
 				sprintf_s(msg, "Failed to get talk power from user with id %d, returned %d with error code %d", newUsers[i], talkPower, error);
 				ts3Functions.logMessage(msg, LogLevel_ERROR, LOG_MSG_CHANNEL, 0);
@@ -429,13 +432,13 @@ void selfChannelSwitch(uint64 serverConnectionHandlerID, uint64 newChannelID, an
 			}
 
 			char msg[512];
-			sprintf_s(msg, "Joined channel with id %lld, adding client %s with id %d to list", newChannelID, error == ERROR_ok ? userName : "<unknown>", newUsers[i]);
+			sprintf_s(msg, "Joined channel with id %lld as id %d, adding client %s with id %d to list", newChannelID, ownClientID, nameError == ERROR_ok ? userName : "<unknown>", newUsers[i]);
 			ts3Functions.logMessage(msg, LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
 
 			if (remoteUsers.size() < 14) {
 				remoteUsers.push_back(newUsers[i]);
 				
-				enqueueCommand(CMD_CHANNEL_JOIN, newUsers[i], talkPower, packUserState(state), error == ERROR_ok ? userName : "<unknown>");
+				enqueueCommand(CMD_CHANNEL_JOIN, newUsers[i], talkPower, packUserState(state), nameError == ERROR_ok ? userName : "<unknown>");
 			}
 		}
 		ts3Functions.freeMemory(newUsers);
@@ -568,12 +571,7 @@ void setNewConfigValues(string port, unsigned long baud) {
 void enqueueCommand(unsigned char cmdCode, anyID userId, int groupId, unsigned char state, const char* data) {
 	cmd_t newCmd = { cmdCode, userId, groupId, state, "" };
 	if (data != NULL) {
-		size_t len = strlen(data);
-		memcpy(newCmd.data, data, min(len, MAX_STR_LEN + 1));
-		if (len > MAX_STR_LEN) {
-			int offset = MAX_STR_LEN - 3;
-			memcpy(newCmd.data + offset, "...", 4);
-		}
+		memcpy(newCmd.data, data, MAX_STR_LEN + 1);
 	}
 
 	// Wait for thread lock
@@ -738,8 +736,11 @@ void sanitizeName(char* source, char* target) {
 		strName.replace(MAX_STR_LEN - 3, 3, 3, '.');
 	}
 
-	strncpy_s(target, MAX_STR_LEN + 1, strName.c_str(), MAX_STR_LEN);
-	target[MAX_STR_LEN] = '\0';
+	const char* name = strName.c_str();
+	strncpy_s(target, MAX_STR_LEN + 1, name, MAX_STR_LEN);
+	
+	size_t count = min(MAX_STR_LEN, strlen(name));
+	memset(target + count, 0, MAX_STR_LEN + 1 - count);
 }
 
 
@@ -753,13 +754,12 @@ bool waitForAcknowledge(SerialPort* com, int timeout = 200) {
 		counter++;
 	} while (buffer != CMD_ACK && counter < timeout);
 
-	if (counter >= timeout) { ts3Functions.logMessage("[OutputThread] Serial acknowledge timed out!", LogLevel_ERROR, LOG_MSG_CHANNEL, 0); }
-	return counter < 200;
+	return counter < timeout;
 }
 
 DWORD WINAPI outputThread(LPVOID lpParam) {
 	SerialPort* com = new SerialPort(portName, baudrate);
-	char out[8 + MAX_STR_LEN + 1] = { 0 }; //Output data buffer
+	cmd_t cmd;
 
 	if (!com->isConnected()) {
 		threadInitError = 1;
@@ -781,12 +781,7 @@ DWORD WINAPI outputThread(LPVOID lpParam) {
 	}
 
 	if (pluginRunning) {
-		enqueueCommand(CMD_DISP_ON, 0, 0, 0, "");
-
-		//Send display on after wake up
-		out[0] = CMD_DISP_ON;
-		com->writeSerialPort(out, sizeof(out));
-		waitForAcknowledge(com);
+		enqueueCommand(CMD_DISP_ON, 0, 0, 0, NULL);
 	}
 
 	DWORD lastPacket = GetTickCount();
@@ -808,7 +803,12 @@ DWORD WINAPI outputThread(LPVOID lpParam) {
 
 				// Wait for cmd execution to finish
 				if (!waitForAcknowledge(com)) {
-					ts3Functions.logMessage("[OutputThread] Command acknowledge timed out!", LogLevel_ERROR, LOG_MSG_CHANNEL, 0);
+					char msg[512];
+					sprintf_s(msg, "[OutputThread] Command 0x%02x acknowledge timed out!", toSend.cmdID);
+					ts3Functions.logMessage(msg, LogLevel_ERROR, LOG_MSG_CHANNEL, 0);
+				}
+				else {
+					ts3Functions.logMessage("[OutputThread] Command acknowledge received!", LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
 				}
 			}
 			else {
@@ -825,12 +825,15 @@ DWORD WINAPI outputThread(LPVOID lpParam) {
 
 		DWORD now = GetTickCount();
 		if (now - lastPacket > PACKET_TIMEOUT) {
-			out[0] = CMD_KEEPALIVE;
-			if (!com->writeSerialPort(out, sizeof(out))) {
+			cmd.cmdID = CMD_KEEPALIVE;
+			if (!com->writeSerialPort((char*)&cmd, sizeof(cmd))) {
 				ts3Functions.logMessage("[OutputThread] Failed to send keepalive packet!", LogLevel_ERROR, LOG_MSG_CHANNEL, 0);
 
 				if (!waitForAcknowledge(com)) {
 					ts3Functions.logMessage("[OutputThread] Keepalive acknowledge timed out!", LogLevel_ERROR, LOG_MSG_CHANNEL, 0);
+				}
+				else {
+					ts3Functions.logMessage("[OutputThread] Keepalive acknowledged!", LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
 				}
 			}
 
@@ -840,8 +843,8 @@ DWORD WINAPI outputThread(LPVOID lpParam) {
 		Sleep(100);
 	}
 
-	out[0] = CMD_DISP_OFF;
-	if (!com->writeSerialPort(out, sizeof(out))) {
+	cmd.cmdID = CMD_DISP_OFF;
+	if (!com->writeSerialPort((char*)&cmd, sizeof(cmd))) {
 		ts3Functions.logMessage("[OutputThread] Failed to write stop command to serial port!", LogLevel_ERROR, LOG_MSG_CHANNEL, 0);
 	}
 	Sleep(50);
