@@ -478,93 +478,93 @@ Wire Wire Line
 $Comp
 L Regulator_Linear:SPX3819M5-L-3-3 U1
 U 1 1 5FC94A55
-P 2250 2750
-F 0 "U1" H 2250 3092 50  0000 C CNN
-F 1 "SPX3819M5-L-3-3" H 2250 3001 50  0000 C CNN
-F 2 "TO_SOT_Packages_SMD:SOT-23-5" H 2250 3075 50  0001 C CNN
-F 3 "https://www.exar.com/content/document.ashx?id=22106&languageid=1033&type=Datasheet&partnumber=SPX3819&filename=SPX3819.pdf&part=SPX3819" H 2250 2750 50  0001 C CNN
-	1    2250 2750
+P 1700 2750
+F 0 "U1" H 1700 3092 50  0000 C CNN
+F 1 "SPX3819M5-L-3-3" H 1700 3001 50  0000 C CNN
+F 2 "TO_SOT_Packages_SMD:SOT-23-5" H 1700 3075 50  0001 C CNN
+F 3 "https://www.exar.com/content/document.ashx?id=22106&languageid=1033&type=Datasheet&partnumber=SPX3819&filename=SPX3819.pdf&part=SPX3819" H 1700 2750 50  0001 C CNN
+	1    1700 2750
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1950 2750 1900 2750
+	1400 2750 1350 2750
 Wire Wire Line
-	1900 2750 1900 2650
+	1350 2750 1350 2650
 Wire Wire Line
-	1900 2650 1950 2650
+	1350 2650 1400 2650
 Wire Wire Line
-	1900 2650 1850 2650
-Connection ~ 1900 2650
-Text GLabel 1850 2650 0    50   Input ~ 0
+	1350 2650 1300 2650
+Connection ~ 1350 2650
+Text GLabel 1300 2650 0    50   Input ~ 0
 5V
 $Comp
 L Device:C C2
 U 1 1 5FCAFE5E
-P 2600 2950
-F 0 "C2" H 2485 2904 50  0000 R CNN
-F 1 "10n" H 2485 2995 50  0000 R CNN
-F 2 "Capacitors_SMD:C_0805" H 2638 2800 50  0001 C CNN
-F 3 "~" H 2600 2950 50  0001 C CNN
-	1    2600 2950
+P 2050 2950
+F 0 "C2" H 1935 2904 50  0000 R CNN
+F 1 "10n" H 1935 2995 50  0000 R CNN
+F 2 "Capacitors_SMD:C_0805" H 2088 2800 50  0001 C CNN
+F 3 "~" H 2050 2950 50  0001 C CNN
+	1    2050 2950
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	2550 2750 2600 2750
+	2000 2750 2050 2750
 Wire Wire Line
-	2600 2750 2600 2800
+	2050 2750 2050 2800
 Wire Wire Line
-	1900 2750 1900 2800
-Connection ~ 1900 2750
+	1350 2750 1350 2800
+Connection ~ 1350 2750
 $Comp
 L Device:C C3
 U 1 1 5FCC5AB9
-P 3000 2950
-F 0 "C3" H 3115 2996 50  0000 L CNN
-F 1 "10u" H 3115 2905 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0805" H 3038 2800 50  0001 C CNN
-F 3 "~" H 3000 2950 50  0001 C CNN
-	1    3000 2950
+P 2450 2950
+F 0 "C3" H 2565 2996 50  0000 L CNN
+F 1 "10u" H 2565 2905 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0805" H 2488 2800 50  0001 C CNN
+F 3 "~" H 2450 2950 50  0001 C CNN
+	1    2450 2950
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1900 3150 2250 3150
+	1350 3150 1700 3150
 $Comp
 L Device:C C1
 U 1 1 5FCBA599
-P 1900 2950
-F 0 "C1" H 1650 3000 50  0000 L CNN
-F 1 "1u" H 1650 2900 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0805" H 1938 2800 50  0001 C CNN
-F 3 "~" H 1900 2950 50  0001 C CNN
-	1    1900 2950
+P 1350 2950
+F 0 "C1" H 1100 3000 50  0000 L CNN
+F 1 "1u" H 1100 2900 50  0000 L CNN
+F 2 "Capacitors_SMD:C_0805" H 1388 2800 50  0001 C CNN
+F 3 "~" H 1350 2950 50  0001 C CNN
+	1    1350 2950
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2250 3150 2250 3200
-Connection ~ 2250 3150
+	1700 3150 1700 3200
+Connection ~ 1700 3150
 Wire Wire Line
-	2250 3150 2600 3150
-Text GLabel 2250 3200 3    50   Input ~ 0
+	1700 3150 2050 3150
+Text GLabel 1700 3200 3    50   Input ~ 0
 GND
 Wire Wire Line
-	1900 3100 1900 3150
+	1350 3100 1350 3150
 Wire Wire Line
-	2250 3050 2250 3150
+	1700 3050 1700 3150
 Wire Wire Line
-	2600 3100 2600 3150
+	2050 3100 2050 3150
 Wire Wire Line
-	2600 3150 3000 3150
+	2050 3150 2450 3150
 Wire Wire Line
-	3000 3150 3000 3100
-Connection ~ 2600 3150
+	2450 3150 2450 3100
+Connection ~ 2050 3150
 Wire Wire Line
-	2550 2650 3000 2650
+	2000 2650 2450 2650
 Wire Wire Line
-	3000 2650 3000 2800
-Connection ~ 3000 2650
+	2450 2650 2450 2800
+Connection ~ 2450 2650
 Wire Wire Line
-	3000 2650 3050 2650
-Text GLabel 3050 2650 2    50   Input ~ 0
+	2450 2650 2500 2650
+Text GLabel 2500 2650 2    50   Input ~ 0
 3.3V
 Text GLabel 4600 3250 0    50   Input ~ 0
 TFT_D0
@@ -725,14 +725,14 @@ Wire Wire Line
 Wire Wire Line
 	8300 1300 8300 1350
 $Comp
-L Connector_Generic:Conn_01x04 J1
+L Connector_Generic:Conn_01x05 J1
 U 1 1 5FE3EB5F
-P 700 1150
-F 0 "J1" H 618 1467 50  0000 C CNN
-F 1 "Conn_01x04" H 618 1376 50  0000 C CNN
-F 2 "Pin_Headers:Pin_Header_Angled_1x04_Pitch1.27mm" H 700 1150 50  0001 C CNN
-F 3 "~" H 700 1150 50  0001 C CNN
-	1    700  1150
+P 700 1050
+F 0 "J1" H 600 1450 50  0000 C CNN
+F 1 "Conn_01x05" H 600 1350 50  0000 C CNN
+F 2 "Connectors_JST:JST_SH_BM05B-SRSS-TB_05x1.00mm_Straight" H 700 1050 50  0001 C CNN
+F 3 "~" H 700 1050 50  0001 C CNN
+	1    700  1050
 	-1   0    0    1   
 $EndComp
 Text GLabel 950  950  2    50   Input ~ 0
@@ -797,46 +797,46 @@ Connection ~ 6100 5350
 $Comp
 L Connector:Conn_ARM_JTAG_SWD_10 J2
 U 1 1 5FD5D1FB
-P 2350 4650
-F 0 "J2" H 2150 5250 50  0000 R CNN
-F 1 "Conn_ARM_JTAG_SWD_10" V 2050 5100 50  0000 R CNN
-F 2 "Pin_Headers:Pin_Header_Straight_2x05_Pitch1.27mm_SMD" H 2350 4650 50  0001 C CNN
-F 3 "http://infocenter.arm.com/help/topic/com.arm.doc.ddi0314h/DDI0314H_coresight_components_trm.pdf" V 2000 3400 50  0001 C CNN
-	1    2350 4650
+P 1900 4650
+F 0 "J2" H 1700 5250 50  0000 R CNN
+F 1 "Conn_ARM_JTAG_SWD_10" V 1600 5100 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_2x05_Pitch1.27mm_SMD" H 1900 4650 50  0001 C CNN
+F 3 "http://infocenter.arm.com/help/topic/com.arm.doc.ddi0314h/DDI0314H_coresight_components_trm.pdf" V 1550 3400 50  0001 C CNN
+	1    1900 4650
 	1    0    0    -1  
 $EndComp
-Text GLabel 2250 5300 3    50   Input ~ 0
+Text GLabel 1800 5300 3    50   Input ~ 0
 GND
-Text GLabel 2350 5300 3    50   Input ~ 0
+Text GLabel 1900 5300 3    50   Input ~ 0
 GND
-Text GLabel 2350 4000 1    50   Input ~ 0
+Text GLabel 1900 4000 1    50   Input ~ 0
 3.3V
-Text GLabel 2900 4350 2    50   Input ~ 0
+Text GLabel 2450 4350 2    50   Input ~ 0
 ~RESET
 Text GLabel 4600 2350 0    50   Input ~ 0
 ~RESET
 Wire Wire Line
 	4600 2350 4650 2350
 Wire Wire Line
-	2850 4350 2900 4350
-Text GLabel 2900 4650 2    50   Input ~ 0
+	2400 4350 2450 4350
+Text GLabel 2450 4650 2    50   Input ~ 0
 SWDIO
-Text GLabel 2900 4550 2    50   Input ~ 0
+Text GLabel 2450 4550 2    50   Input ~ 0
 SWDCLK
 Text GLabel 4600 5450 0    50   Input ~ 0
 SWDCLK
 Text GLabel 4600 5550 0    50   Input ~ 0
 SWDIO
 Wire Wire Line
-	2850 4550 2900 4550
+	2400 4550 2450 4550
 Wire Wire Line
-	2850 4650 2900 4650
+	2400 4650 2450 4650
 Wire Wire Line
-	2350 4000 2350 4050
+	1900 4000 1900 4050
 Wire Wire Line
-	2250 5250 2250 5300
+	1800 5250 1800 5300
 Wire Wire Line
-	2350 5250 2350 5300
+	1900 5250 1900 5300
 Wire Wire Line
 	4600 5450 4650 5450
 Wire Wire Line
@@ -844,20 +844,59 @@ Wire Wire Line
 $Comp
 L Device:R R2
 U 1 1 5FDA6B25
-P 1700 4550
-F 0 "R2" H 1770 4596 50  0000 L CNN
-F 1 "10k" H 1770 4505 50  0000 L CNN
-F 2 "Resistors_SMD:R_0805" V 1630 4550 50  0001 C CNN
-F 3 "~" H 1700 4550 50  0001 C CNN
-	1    1700 4550
+P 1250 4550
+F 0 "R2" H 1320 4596 50  0000 L CNN
+F 1 "10k" H 1320 4505 50  0000 L CNN
+F 2 "Resistors_SMD:R_0805" V 1180 4550 50  0001 C CNN
+F 3 "~" H 1250 4550 50  0001 C CNN
+	1    1250 4550
 	1    0    0    -1  
 $EndComp
-Text GLabel 1700 4750 3    50   Input ~ 0
+Text GLabel 1250 4750 3    50   Input ~ 0
 SWDCLK
-Text GLabel 1700 4350 1    50   Input ~ 0
+Text GLabel 1250 4350 1    50   Input ~ 0
 3.3V
 Wire Wire Line
-	1700 4350 1700 4400
+	1250 4350 1250 4400
 Wire Wire Line
-	1700 4700 1700 4750
+	1250 4700 1250 4750
+$Comp
+L Switch:SW_Push SW1
+U 1 1 603D339B
+P 3300 3800
+F 0 "SW1" V 3346 3752 50  0000 R CNN
+F 1 "SW_Push" V 3255 3752 50  0000 R CNN
+F 2 "Buttons_Switches_SMD:SW_SPST_PTS810" H 3300 4000 50  0001 C CNN
+F 3 "~" H 3300 4000 50  0001 C CNN
+	1    3300 3800
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R3
+U 1 1 603D5250
+P 3300 3350
+F 0 "R3" H 3370 3396 50  0000 L CNN
+F 1 "10k" H 3370 3305 50  0000 L CNN
+F 2 "Resistors_SMD:R_0805" V 3230 3350 50  0001 C CNN
+F 3 "~" H 3300 3350 50  0001 C CNN
+	1    3300 3350
+	1    0    0    -1  
+$EndComp
+Text GLabel 3300 4050 3    50   Input ~ 0
+GND
+Text GLabel 3250 3550 0    50   Input ~ 0
+~RESET
+Text GLabel 3300 3150 1    50   Input ~ 0
+3.3V
+Wire Wire Line
+	3300 3150 3300 3200
+Wire Wire Line
+	3300 3500 3300 3550
+Wire Wire Line
+	3250 3550 3300 3550
+Connection ~ 3300 3550
+Wire Wire Line
+	3300 3550 3300 3600
+Wire Wire Line
+	3300 4000 3300 4050
 $EndSCHEMATC
