@@ -57,18 +57,6 @@ Wire Wire Line
 	4600 4450 4650 4450
 Wire Wire Line
 	4600 4550 4650 4550
-Wire Wire Line
-	4600 4650 4650 4650
-Wire Wire Line
-	4600 4750 4650 4750
-Text GLabel 4600 3150 0    50   Input ~ 0
-~TFT_WR
-Text GLabel 6100 3550 2    50   Input ~ 0
-TFT_DC
-Text GLabel 6100 3450 2    50   Input ~ 0
-~TFT_CS
-Text GLabel 6100 3950 2    50   Input ~ 0
-~TFT_RST
 Text GLabel 4600 5050 0    50   Input ~ 0
 USB_D-
 Text GLabel 4600 5150 0    50   Input ~ 0
@@ -77,10 +65,6 @@ Wire Wire Line
 	4600 5050 4650 5050
 Wire Wire Line
 	4600 5150 4650 5150
-Wire Wire Line
-	6100 3950 6050 3950
-Wire Wire Line
-	6100 3450 6050 3450
 Wire Wire Line
 	6100 3550 6050 3550
 Wire Wire Line
@@ -141,10 +125,6 @@ Wire Wire Line
 Wire Wire Line
 	6100 5350 6050 5350
 Connection ~ 6100 5250
-Text GLabel 6100 3850 2    50   Input ~ 0
-TFT_BL
-Wire Wire Line
-	6050 3850 6100 3850
 Wire Wire Line
 	4600 2750 4650 2750
 Wire Wire Line
@@ -534,38 +514,6 @@ Wire Wire Line
 	2450 2650 2500 2650
 Text GLabel 2500 2650 2    50   Input ~ 0
 3.3V
-Text GLabel 4600 3250 0    50   Input ~ 0
-TFT_D0
-Text GLabel 4600 3350 0    50   Input ~ 0
-TFT_D1
-Text GLabel 4600 3450 0    50   Input ~ 0
-TFT_D2
-Text GLabel 4600 3550 0    50   Input ~ 0
-TFT_D3
-Text GLabel 4600 3650 0    50   Input ~ 0
-TFT_D4
-Text GLabel 4600 3750 0    50   Input ~ 0
-TFT_D5
-Text GLabel 4600 3850 0    50   Input ~ 0
-TFT_D6
-Text GLabel 4600 3950 0    50   Input ~ 0
-TFT_D7
-Text GLabel 4600 4050 0    50   Input ~ 0
-TFT_D8
-Text GLabel 4600 4150 0    50   Input ~ 0
-TFT_D9
-Text GLabel 4600 4250 0    50   Input ~ 0
-TFT_D10
-Text GLabel 4600 4350 0    50   Input ~ 0
-TFT_D11
-Text GLabel 4600 4450 0    50   Input ~ 0
-TFT_D12
-Text GLabel 4600 4550 0    50   Input ~ 0
-TFT_D13
-Text GLabel 4600 4650 0    50   Input ~ 0
-TFT_D14
-Text GLabel 4600 4750 0    50   Input ~ 0
-TFT_D15
 Text GLabel 10300 1750 2    50   Input ~ 0
 TFT_D0
 Text GLabel 10300 1850 2    50   Input ~ 0
@@ -908,4 +856,56 @@ Wire Wire Line
 	3550 2700 3550 2900
 Wire Wire Line
 	4300 2700 4350 2700
+Text GLabel 6100 3550 2    50   Input ~ 0
+~TFT_RST
+Text GLabel 4600 4550 0    50   Input ~ 0
+TFT_D0
+Text GLabel 4600 4450 0    50   Input ~ 0
+TFT_D1
+Text GLabel 4600 4350 0    50   Input ~ 0
+TFT_D2
+Text GLabel 4600 4250 0    50   Input ~ 0
+TFT_D3
+Text GLabel 4600 4150 0    50   Input ~ 0
+TFT_D4
+Text GLabel 4600 4050 0    50   Input ~ 0
+TFT_D5
+Text GLabel 4600 3950 0    50   Input ~ 0
+TFT_D6
+Text GLabel 4600 3850 0    50   Input ~ 0
+TFT_D7
+Text GLabel 4600 3750 0    50   Input ~ 0
+TFT_D8
+Text GLabel 4600 3650 0    50   Input ~ 0
+TFT_D9
+Text GLabel 4600 3550 0    50   Input ~ 0
+TFT_D10
+Text GLabel 4600 3450 0    50   Input ~ 0
+TFT_D11
+Text GLabel 4600 3350 0    50   Input ~ 0
+TFT_D12
+Text GLabel 4600 3250 0    50   Input ~ 0
+TFT_D13
+Text GLabel 4600 3150 0    50   Input ~ 0
+TFT_D14
+Text GLabel 4600 3050 0    50   Input ~ 0
+TFT_D15
+Wire Wire Line
+	4600 3050 4650 3050
+Text GLabel 4600 4650 0    50   Input ~ 0
+~TFT_WR
+Wire Wire Line
+	4600 4650 4650 4650
+Wire Wire Line
+	6100 3450 6050 3450
+Text GLabel 6100 3450 2    50   Input ~ 0
+TFT_BL
+Text GLabel 4600 4750 0    50   Input ~ 0
+TFT_DC
+Text GLabel 4600 4850 0    50   Input ~ 0
+~TFT_CS
+Wire Wire Line
+	4600 4750 4650 4750
+Wire Wire Line
+	4600 4850 4650 4850
 $EndSCHEMATC
