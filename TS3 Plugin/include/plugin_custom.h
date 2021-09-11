@@ -65,8 +65,12 @@ void sanitizeName(char* source, char* target);
 
 void enqueueCommand(unsigned char cmd, anyID userId, int groupId, unsigned char state, const char* data);
 
-int waitForMutex(HANDLE mutex, DWORD ms, char* sourceThread);
+int waitForMutex(HANDLE mutex, DWORD ms, const char* sourceThread);
 
 userState getCurrentState(anyID userID);
 
 byte packUserState(userState state);
+
+
+
+DWORD WINAPI outputThread(LPVOID lpParam);

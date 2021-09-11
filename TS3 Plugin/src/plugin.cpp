@@ -2,7 +2,7 @@
 #pragma warning (disable : 4100)  /* Disable Unreferenced parameter warning */
 #include <Windows.h>
 #endif
-	
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -131,7 +131,8 @@ void ts3plugin_shutdown() {
 	/* Your plugin cleanup code here */
 		ts3Functions.logMessage("Stopping thread", LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
 		pluginRunning = 0;
-		while (!threadExited) { Sleep(1); }
+		//while (!threadExited) { Sleep(1); }
+		WaitForSingleObject(threadHandle, 250); //TODO: check if this works as expected as a replacement for the busy wait
 
 		ts3Functions.logMessage("Thread stopped", LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
 	}
@@ -590,7 +591,7 @@ void enqueueCommand(unsigned char cmdCode, anyID userId, int groupId, unsigned c
 }
 
 //Returns 1 if an error occurs
-int waitForMutex(HANDLE mutex, DWORD ms, char* sourceThread) {
+int waitForMutex(HANDLE mutex, DWORD ms, const char* sourceThread) {
 	DWORD waitResult = WaitForSingleObject(mutex, ms);
 	if (waitResult != WAIT_OBJECT_0) {
 		if (waitResult == WAIT_ABANDONED) {
@@ -625,7 +626,7 @@ byte packUserState(userState state) {
 	return result;
 }
 
-map<wchar_t, char*> specialChars = {
+map<wchar_t, const char*> specialChars = {
 	{ 0xC2A2, "c" },
 	{ 0xC2A6, "|" },
 	{ 0xC2A9, "C" },
@@ -720,7 +721,7 @@ void sanitizeName(char* source, char* target) {
 
 			auto entry = specialChars.find(wc);
 			if (entry != specialChars.end()) {
-				char* replacement = entry->second;
+				const char* replacement = entry->second;
 				strName = strName.insert(i, replacement);
 				i += strlen(replacement);
 			}
@@ -851,6 +852,7 @@ DWORD WINAPI outputThread(LPVOID lpParam) {
 
 	if (com->isConnected()) { com->closeSerial(); }
 
+	ts3Functions.logMessage("[OutputThread] Exiting!", LogLevel_DEBUG, LOG_MSG_CHANNEL, 0);
 	threadExited = 1;
 	return 0;
 }
