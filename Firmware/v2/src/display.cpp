@@ -1,14 +1,22 @@
 #include "display.hpp"
 
 #ifdef __IMXRT1062__
-uint8_t data[16] = { 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
-ST7789 display = ST7789(TFT_RST, TFT_RD, TFT_WR, TFT_CS, TFT_DC, data, TFT_BL);
+uint8_t dataPins[16] = { 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 };
+ST7789 display = ST7789(TFT_RST, TFT_RD, TFT_WR, TFT_CS, TFT_DC, dataPins, TFT_BL);
 #elif defined(__SAMD21G18A__) || defined(__SAMD51__)
-ST7789 display = ST7789(TFT_RST, TFT_RD, TFT_WR, TFT_CS, TFT_DC, &PORT->Group[PORTA], 6, TFT_BL);
+#ifdef PCB_V1
+ST7789 display = ST7789(TFT_RST, TFT_RD, TFT_WR, TFT_CS, TFT_DC, &PORT->Group[PORTA], 6, false, TFT_BL); //Initial PCB design
+#else
+ST7789 display = ST7789(TFT_RST, TFT_RD, TFT_WR, TFT_CS, TFT_DC, &PORT->Group[PORTA], 4, true, TFT_BL); //New PCB design
+#endif
 #endif
 
 void initDisplay() {
     display.begin(false);
+#ifdef PCB_V1
+    display.setRotation(2);
+#endif
+
     display.fillRect(0,  0, 240,  18, TFT_CYAN);
     display.fillRect(0, 18, 240,  18, TFT_LIGHTGREY);
     display.fillRect(0, 36, 240, 284, TFT_WHITE);
