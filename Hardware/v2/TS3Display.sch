@@ -197,26 +197,26 @@ Wire Wire Line
 	9250 3550 9350 3550
 Wire Wire Line
 	9250 3600 9250 3550
-Text GLabel 8200 1950 0    50   Input ~ 0
+Text GLabel 8200 1900 0    50   Input ~ 0
 ~TFT_CS
-Text GLabel 8200 2050 0    50   Input ~ 0
+Text GLabel 8200 2000 0    50   Input ~ 0
 TFT_DC
-Text GLabel 8200 2350 0    50   Input ~ 0
+Text GLabel 8200 2300 0    50   Input ~ 0
 ~TFT_RST
-Text GLabel 8200 2150 0    50   Input ~ 0
+Text GLabel 8200 2100 0    50   Input ~ 0
 ~TFT_WR
-Text GLabel 8200 2250 0    50   Input ~ 0
+Text GLabel 8200 2200 0    50   Input ~ 0
 3.3V
 Wire Wire Line
-	8200 1950 8250 1950
+	8200 1900 8250 1900
 Wire Wire Line
-	8200 2050 8250 2050
+	8200 2000 8250 2000
 Wire Wire Line
-	8200 2150 8250 2150
+	8200 2100 8250 2100
 Wire Wire Line
-	8200 2250 8250 2250
+	8200 2200 8250 2200
 Wire Wire Line
-	8200 2350 8250 2350
+	8200 2300 8250 2300
 Connection ~ 9250 1450
 Wire Wire Line
 	9250 1450 9300 1450
@@ -908,4 +908,8 @@ Wire Wire Line
 	4600 4750 4650 4750
 Wire Wire Line
 	4600 4850 4650 4850
+Text GLabel 8200 2400 0    50   Input ~ 0
+GND
+Wire Wire Line
+	8200 2400 8250 2400
 $EndSCHEMATC
