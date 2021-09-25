@@ -355,6 +355,51 @@ void ST7789::drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
 }
 
 void ST7789::drawRGBBitmap(int16_t x, int16_t y, const uint16_t bitmap[], int16_t w, int16_t h) {
+    bool invX = false;
+    bool invY = false;
+
+    int16_t temp;
+    switch (rotation)
+    {
+        case 1:
+        {
+            temp = w;
+            w = h;
+            h = temp;
+
+            temp = x;
+            x = TFT_WIDTH - w - y;
+            y = temp;
+
+            invX = true;
+            break;
+        }
+        case 2:
+        {
+            x = TFT_WIDTH  - w - x;
+            y = TFT_HEIGHT - h - y;
+
+            invX = true;
+            invY = true;
+            break;
+        }
+        case 3:
+        {
+            temp = w;
+            w = h;
+            h = temp;
+
+            temp = x;
+            x = y;
+            y = TFT_HEIGHT - h - temp;
+
+            invY = true;
+            break;
+        }
+        default:
+            break;
+    }
+
     if(x < 0 || y < 0 || x >= TFT_WIDTH || y >= TFT_HEIGHT || x + w > TFT_WIDTH || y + h > TFT_HEIGHT) { return; }
 
     CS_LOW();
@@ -362,8 +407,13 @@ void ST7789::drawRGBBitmap(int16_t x, int16_t y, const uint16_t bitmap[], int16_
     setAddressWindow(x, x + w - 1, y, y + h - 1);
 
     writeCommand(CMD_RAM_WRITE);
-    for(int i = 0; i < w * h; i++) {
-        writeData(pgm_read_word(&bitmap[i]));
+    for (int pY = 0; pY < h; pY++) {
+        for(int pX = 0; pX < w; pX++) {
+            int iX = invX ? (w - 1 - pX) : pX;
+            int iY = invY ? (h - 1 - pY) : pY;
+            int idx = iX + (iY * w);
+            writeData(pgm_read_word(&bitmap[idx]));
+        }
     }
 
     CS_HIGH();
