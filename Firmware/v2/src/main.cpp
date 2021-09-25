@@ -8,6 +8,8 @@
 
 client_t* clients[14];
 uint16_t ownClientId = 0;
+char serverName[MAX_STR_LEN + 1] = "No server";
+char channelName[MAX_STR_LEN + 1] = "No channel";
 unsigned long lastPacket = 0;
 
 //EMPTY_INTERRUPT(PCINT2_vect);
@@ -199,8 +201,8 @@ void setup() {
 
     initDisplay();
 
-    printServerName((char*)"No server");
-    printChannelName((char*)"No channel");
+    printServerName(serverName);
+    printChannelName(channelName);
 
     shutdownAndWait(false, true);
 
@@ -220,15 +222,19 @@ void loop() {
 
             case CMD_DISCONNECT: {
                 disconnect(clients);
+                strcpy(serverName, "No server");
+                strcpy(channelName, "No channel");
                 break;
             }
 
             case CMD_SERVER_NAME: {
+                strcpy(serverName, cmdIn.data);
                 printServerName(cmdIn.data);
                 break;
             }
 
             case CMD_CHANNEL_SWITCH: {
+                strcpy(channelName, cmdIn.data);
                 printChannelName(cmdIn.data);
                 for(auto & client : clients) { client->id = 0; } // Reset client list
                 clearClientList();
@@ -283,6 +289,24 @@ void loop() {
             case CMD_DISP_OFF: {
                 displayOff();
                 shutdownAndWait(true, false);
+                break;
+            }
+
+            case CMD_CONFIG: {
+                switch (cmdIn.userID) { //Abuse userID field for config type
+                    case CONFIG_DARK_MODE: {
+                        if (switchDarkMode(cmdIn.state)) {
+                            printServerName(serverName);
+                            printChannelName(channelName);
+                            redrawUserList(clients, ownClientId);
+                        }
+                        break;
+                    }
+                    case CONFIG_BRIGHTNESS: {
+                        setDisplayBrightness(cmdIn.state);
+                        break;
+                    }
+                }
                 break;
             }
         }

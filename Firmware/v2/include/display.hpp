@@ -37,6 +37,10 @@
 class client_t;
 
 void initDisplay();
+bool switchDarkMode(bool dark);
+void setDisplayBrightness(uint8_t percent);
+void configureColors();
+void drawBackground();
 void displayOn();
 void displayOff();
 

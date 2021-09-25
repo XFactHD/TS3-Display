@@ -23,9 +23,13 @@
 #define CMD_CHECK_INTEGRITY   0x52	// Check integrity of the data on the display
 #define CMD_REBUILD_LIST	  0x53	// Clear the client list on the display for rebuilding
 #define CMD_REBUILD_DONE	  0x54	// Rebuild done, trigger redraw
+#define CMD_CONFIG            0x55  // Set configuration
 #define CMD_ACK               0x60  // Command acknowledge
 
-//Must be marked as packed on Teensy 4 because the compiler adds padding leading to a size of 48 instead of 44
+#define CONFIG_DARK_MODE      0x01
+#define CONFIG_BRIGHTNESS     0x02
+
+//Must be marked as packed on 32bit processors because the compiler adds padding leading to a size of 48 instead of 44
 typedef struct __attribute__((packed)) {
     uint8_t cmdID;
     uint16_t userID;
